@@ -29,8 +29,9 @@ export default function UsersScreen({ navigation }) {
 
     try {
       const response = await fetch('https://reqres.in/api/users?page=1', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` } // Correção com backticks
       });
+
       const data = await response.json();
       setUsers(data.data); // Armazena a lista de usuários no estado
     } catch (error) {

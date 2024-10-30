@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * by Gleiser Wesley
@@ -15,13 +16,23 @@ export default function DeleteUserScreen({ route, navigation }) {
 
   /**
    * Função para excluir o usuário.
-   * Realiza uma chamada DELETE à API para excluir o usuário e, em caso de sucesso,
-   * exibe uma mensagem de confirmação e redireciona para a tela de lista de usuários.
+   * Verifica o token de autenticação no AsyncStorage. Se o token existir, realiza uma chamada DELETE à API para excluir o usuário.
+   * Em caso de sucesso, exibe uma mensagem de confirmação e redireciona para a tela de lista de usuários.
    */
   const handleDelete = async () => {
+    // Busca o token de autenticação
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      // Redireciona para a tela de login caso o token não exista
+      navigation.navigate('Login');
+      return;
+    }
+
     try {
+      // Realiza a requisição DELETE com o token de autenticação no cabeçalho
       const response = await fetch(`https://reqres.in/api/users/${userId}`, {
         method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` } // Correção com backticks
       });
 
       // Verifica se a exclusão foi bem-sucedida

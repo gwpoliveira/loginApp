@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 /**
+ * by Gleiser Wesley
  * Tela de Login que permite ao usuário autenticar-se com email e senha.
  * Armazena o token de autenticação no AsyncStorage em caso de sucesso.
  *
@@ -15,7 +16,6 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
 
   /**
-   * by Gleiser Wesley
    * Função de login.
    * Envia uma requisição POST com as credenciais do usuário e armazena o token de autenticação
    * no AsyncStorage em caso de sucesso.
@@ -34,7 +34,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <ImageBackground
-      source={{ uri: 'https://example.com/background-image.jpg' }} // URL da imagem de fundo
+      source={{ uri: 'https://img.freepik.com/vetores-gratis/padrao-forrado-de-neon-verde-em-um-vetor-de-fundo-de-historia-social-escuro_53876-173385.jpg?t=st=1730327946~exp=1730331546~hmac=bea4c5f2d622b5ef3313e1d7148d4c3e405b7c50c9068bef3646e96f41a0dfad&w=740' }} // URL da imagem de fundo
       style={styles.background}
     >
       <View style={styles.container}>

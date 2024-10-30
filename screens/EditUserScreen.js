@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * by Gleiser Wesley
@@ -22,12 +23,23 @@ export default function EditUserScreen({ route, navigation }) {
 
   /**
    * Hook de efeito para buscar detalhes do usuário ao carregar a tela.
-   * Utiliza o userId da rota para fazer a requisição GET.
+   * Utiliza o userId da rota para fazer a requisição GET autenticada com o token.
    */
   useEffect(() => {
     const fetchUserDetails = async () => {
+      // Busca o token de autenticação no AsyncStorage
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        // Redireciona para a tela de login caso o token não exista
+        navigation.navigate('Login');
+        return;
+      }
+
       try {
-        const response = await fetch(`https://reqres.in/api/users/${userId}`);
+        // Realiza a requisição GET com o token de autenticação no cabeçalho
+        const response = await fetch(`https://reqres.in/api/users/${userId}`, {
+          headers: { 'Authorization': `Bearer ${token}` } // Correção com backticks
+        });
         const data = await response.json();
         setUser(data.data);
         setFirstName(data.data.first_name);
@@ -40,17 +52,26 @@ export default function EditUserScreen({ route, navigation }) {
     };
 
     fetchUserDetails();
-  }, [userId]);
+  }, [userId, navigation]);
 
   /**
    * Função para salvar as alterações do usuário.
    * Realiza uma requisição PUT para atualizar o nome e sobrenome do usuário.
    */
   const handleSave = async () => {
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      navigation.navigate('Login');
+      return;
+    }
+
     try {
       const response = await fetch(`https://reqres.in/api/users/${userId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Correção com backticks
+        },
         body: JSON.stringify({ first_name: firstName, last_name: lastName })
       });
 

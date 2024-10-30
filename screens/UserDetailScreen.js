@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * by Gleiser Wesley
@@ -7,8 +8,9 @@ import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
  * Exibe as informações de um usuário específico, incluindo nome, email e ID.
  *
  * @param {object} route - Contém parâmetros de navegação, incluindo userId.
+ * @param {object} navigation - Objeto de navegação para redirecionamento de tela.
  */
-export default function UserDetailScreen({ route }) {
+export default function UserDetailScreen({ route, navigation }) {
   // Extrai o ID do usuário dos parâmetros da rota
   const { userId } = route.params;
 
@@ -18,12 +20,24 @@ export default function UserDetailScreen({ route }) {
 
   /**
    * Hook de efeito para buscar os detalhes do usuário ao carregar a tela.
-   * Utiliza o userId para fazer uma requisição GET e obter os dados do usuário.
+   * Utiliza o userId e o token de autenticação para fazer uma requisição GET.
    */
   useEffect(() => {
     const fetchUserDetails = async () => {
+      // Busca o token de autenticação no AsyncStorage
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        // Redireciona para a tela de login caso o token não exista
+        navigation.navigate('Login');
+        return;
+      }
+
       try {
-        const response = await fetch(`https://reqres.in/api/users/${userId}`);
+        // Realiza a requisição GET com o token de autenticação no cabeçalho
+        const response = await fetch(`https://reqres.in/api/users/${userId}`, {
+          headers: { 'Authorization': `Bearer ${token}` } // Correção com backticks
+        });
+
         const data = await response.json();
         setUser(data.data); // Armazena os dados do usuário no estado
       } catch (error) {
@@ -34,7 +48,7 @@ export default function UserDetailScreen({ route }) {
     };
 
     fetchUserDetails();
-  }, [userId]);
+  }, [userId, navigation]);
 
   // Exibe o indicador de carregamento enquanto os dados do usuário estão sendo buscados
   if (loading) {
