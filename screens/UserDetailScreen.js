@@ -1,38 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 
+/**
+ * by Gleiser Wesley
+ * Tela de detalhes do usuário.
+ * Exibe as informações de um usuário específico, incluindo nome, email e ID.
+ *
+ * @param {object} route - Contém parâmetros de navegação, incluindo userId.
+ */
 export default function UserDetailScreen({ route }) {
+  // Extrai o ID do usuário dos parâmetros da rota
   const { userId } = route.params;
+
+  // Estados para armazenar os detalhes do usuário e controlar o estado de carregamento
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  /**
+   * Hook de efeito para buscar os detalhes do usuário ao carregar a tela.
+   * Utiliza o userId para fazer uma requisição GET e obter os dados do usuário.
+   */
   useEffect(() => {
-    // Busca os detalhes do usuário
     const fetchUserDetails = async () => {
       try {
         const response = await fetch(`https://reqres.in/api/users/${userId}`);
         const data = await response.json();
-        setUser(data.data);
+        setUser(data.data); // Armazena os dados do usuário no estado
       } catch (error) {
         console.error("Erro ao carregar detalhes do usuário", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Conclui o carregamento
       }
     };
 
     fetchUserDetails();
   }, [userId]);
 
+  // Exibe o indicador de carregamento enquanto os dados do usuário estão sendo buscados
   if (loading) {
     return <ActivityIndicator size="large" color="#5D5FEF" style={styles.loader} />;
   }
 
+  // Exibe uma mensagem de erro caso o usuário não seja encontrado
   if (!user) {
     return <Text style={styles.errorText}>Usuário não encontrado.</Text>;
   }
 
   return (
     <View style={styles.container}>
+      {/* Card de detalhes do usuário */}
       <View style={styles.userCard}>
         <Text style={styles.name}>{user.first_name} {user.last_name}</Text>
         <Text style={styles.email}>Email: {user.email}</Text>
@@ -48,7 +64,7 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f4f8',
+    backgroundColor: '#f0f4f8', // Fundo claro para melhor contraste com o cartão do usuário
   },
   loader: {
     flex: 1,
@@ -58,7 +74,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 18,
     color: 'red',
-    textAlign: 'center',
+    textAlign: 'center', // Estilo para mensagem de erro
   },
   userCard: {
     backgroundColor: '#fff',
@@ -70,13 +86,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 5,
-    alignItems: 'center',
+    alignItems: 'center', // Centraliza o conteúdo do cartão
   },
   name: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 15,
+    marginBottom: 15, // Estilo do nome com destaque
   },
   email: {
     fontSize: 18,
@@ -85,6 +101,6 @@ const styles = StyleSheet.create({
   },
   id: {
     fontSize: 16,
-    color: '#aaa',
+    color: '#aaa', // Estilo do ID em cor discreta
   },
 });

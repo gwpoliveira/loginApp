@@ -3,10 +3,23 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator }
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
 
+/**
+ * by Gleiser Wesley
+ * Tela de lista de usuários.
+ * Exibe uma lista de usuários com opções para visualizar, editar e excluir.
+ *
+ * @param {object} navigation - Objeto de navegação para redirecionamento de tela.
+ */
 export default function UsersScreen({ navigation }) {
+  // Estado para armazenar a lista de usuários e controlar o carregamento
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  /**
+   * Função para buscar a lista de usuários.
+   * Utiliza o token de autenticação armazenado no AsyncStorage para autenticar a requisição.
+   * Redireciona para a tela de login se o token não for encontrado.
+   */
   const fetchUsers = async () => {
     const token = await AsyncStorage.getItem('token');
     if (!token) {
@@ -19,23 +32,29 @@ export default function UsersScreen({ navigation }) {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
-      setUsers(data.data);
+      setUsers(data.data); // Armazena a lista de usuários no estado
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Conclui o carregamento
     }
   };
 
+  /**
+   * Função de logout.
+   * Remove o token de autenticação e redireciona o usuário para a tela de login.
+   */
   const handleLogout = async () => {
     await AsyncStorage.removeItem('token');
     navigation.navigate('Login');
   };
 
+  // Hook de efeito para buscar os usuários ao carregar a tela
   useEffect(() => { fetchUsers(); }, []);
 
   return (
     <View style={styles.container}>
+      {/* Cabeçalho com o título da tela e o botão de logout */}
       <View style={styles.header}>
         <Text style={styles.title}>Usuários</Text>
 
@@ -44,6 +63,7 @@ export default function UsersScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
+      {/* Exibe um indicador de carregamento enquanto a lista de usuários está sendo carregada */}
       {loading ? (
         <ActivityIndicator size="large" color="#5D5FEF" style={styles.loader} />
       ) : (
@@ -79,7 +99,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f0f4f8',
+    backgroundColor: '#f0f4f8', // Fundo claro para contraste com os cards de usuário
   },
   header: {
     flexDirection: 'row',
@@ -95,7 +115,7 @@ const styles = StyleSheet.create({
   logoutButton: {
     padding: 10,
     borderRadius: 20,
-    backgroundColor: '#5D5FEF',
+    backgroundColor: '#5D5FEF', // Cor de destaque para o botão de logout
   },
   logoutText: {
     color: '#fff',

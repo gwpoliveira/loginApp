@@ -1,13 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ActivityIndicator } from 'react-native';
 
+/**
+ * by Gleiser Wesley
+ * Tela para editar os dados de um usuário específico.
+ *
+ * Permite ao usuário visualizar e atualizar o primeiro e o último nome do usuário.
+ *
+ * @param {object} route - Contém parâmetros de navegação, incluindo userId.
+ * @param {object} navigation - Objeto de navegação para redirecionamento de tela.
+ */
 export default function EditUserScreen({ route, navigation }) {
+  // Extração do ID do usuário a partir dos parâmetros da rota
   const { userId } = route.params;
+
+  // Estados para armazenar os detalhes do usuário e controlar o carregamento
   const [user, setUser] = useState(null);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(true);
 
+  /**
+   * Hook de efeito para buscar detalhes do usuário ao carregar a tela.
+   * Utiliza o userId da rota para fazer a requisição GET.
+   */
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
@@ -19,13 +35,17 @@ export default function EditUserScreen({ route, navigation }) {
       } catch (error) {
         console.error("Erro ao carregar detalhes do usuário", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Conclui o carregamento
       }
     };
 
     fetchUserDetails();
   }, [userId]);
 
+  /**
+   * Função para salvar as alterações do usuário.
+   * Realiza uma requisição PUT para atualizar o nome e sobrenome do usuário.
+   */
   const handleSave = async () => {
     try {
       const response = await fetch(`https://reqres.in/api/users/${userId}`, {
@@ -36,7 +56,7 @@ export default function EditUserScreen({ route, navigation }) {
 
       if (response.ok) {
         Alert.alert("Sucesso", "Usuário atualizado!");
-        navigation.goBack();
+        navigation.goBack(); // Retorna para a tela anterior após o salvamento
       } else {
         Alert.alert("Erro", "Não foi possível atualizar o usuário.");
       }
@@ -45,12 +65,14 @@ export default function EditUserScreen({ route, navigation }) {
     }
   };
 
+  // Exibe o indicador de carregamento enquanto os dados do usuário estão sendo buscados
   if (loading) {
     return <ActivityIndicator size="large" color="#5D5FEF" style={styles.loader} />;
   }
 
   return (
     <View style={styles.container}>
+      {/* Campo para editar o primeiro nome do usuário */}
       <Text style={styles.label}>Primeiro Nome:</Text>
       <TextInput
         value={firstName}
@@ -60,6 +82,7 @@ export default function EditUserScreen({ route, navigation }) {
         placeholderTextColor="#aaa"
       />
 
+      {/* Campo para editar o último nome do usuário */}
       <Text style={styles.label}>Último Nome:</Text>
       <TextInput
         value={lastName}
@@ -69,6 +92,7 @@ export default function EditUserScreen({ route, navigation }) {
         placeholderTextColor="#aaa"
       />
 
+      {/* Botão para salvar as alterações */}
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveButtonText}>Salvar</Text>
       </TouchableOpacity>
