@@ -1,7 +1,7 @@
-// LoginScreen.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -9,68 +9,95 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('https://reqres.in/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        await AsyncStorage.setItem('token', data.token);
-        navigation.navigate('Users');
-      } else {
-        Alert.alert('Login falhou', data.error);
-      }
+      const response = await axios.post('https://reqres.in/api/login', { email, password });
+      const token = response.data.token;
+      await AsyncStorage.setItem('token', token);
+      Alert.alert("Login bem-sucedido!");
+      navigation.navigate('Users');
     } catch (error) {
-      Alert.alert('Erro', 'Algo deu errado!');
+      Alert.alert("Erro de autenticação", "Verifique as credenciais e tente novamente.");
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        autoCapitalize="none"
-      />
-      <TextInput
-        placeholder="Senha"
-        value={password}
-        secureTextEntry
-        onChangeText={setPassword}
-        style={styles.input}
-      />
-      <Button title="Entrar" onPress={handleLogin} />
-    </View>
+    <ImageBackground
+      source={{ uri: 'https://example.com/background-image.jpg' }}
+      style={styles.background}
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>Bem-vindo de Volta</Text>
+        <Text style={styles.subtitle}>Faça login para continuar</Text>
+
+        <TextInput
+          placeholder="Email"
+          placeholderTextColor="#aaa"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          style={styles.input}
+        />
+
+        <TextInput
+          placeholder="Senha"
+          placeholderTextColor="#aaa"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          style={styles.input}
+        />
+
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Entrar</Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    resizeMode: 'cover',
+  },
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff'
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   title: {
     fontSize: 32,
+    color: '#fff',
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#ddd',
     marginBottom: 20,
-    textAlign: 'center'
   },
   input: {
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
+    width: '100%',
+    padding: 15,
+    borderRadius: 25,
+    backgroundColor: '#fff',
     marginBottom: 15,
-    paddingHorizontal: 10
-  }
+    fontSize: 16,
+    color: '#333',
+  },
+  button: {
+    width: '100%',
+    padding: 15,
+    borderRadius: 25,
+    alignItems: 'center',
+    backgroundColor: '#5D5FEF',
+    marginTop: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
 });
